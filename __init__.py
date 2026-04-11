@@ -6,15 +6,16 @@ from typing import TextIO
 import settings
 from BaseClasses import Item, Tutorial, ItemClassification
 from Options import Accessibility
+from rule_builder.rules import Has
 from worlds.AutoWorld import World, WebWorld
 from worlds.LauncherComponents import Component, components, Type, SuffixIdentifier, icon_paths
-from .Events import create_events
-from .Items import item_table, BfBBItem
+from .Items import item_table, BfBBItem, item_name_groups
+from .LocationGroups import location_name_groups
 from .Locations import location_table, BfBBLocation, patrick_location_table
 from .Options import BfBBOptions, RandomizeGateCost
 from .Regions import create_regions
 from .Rom import BfBBContainer
-from .Rules import set_rules
+from .Rules import logic
 from .Settings import BattleForBikiniBottomSettings
 from .Tracker import tracker_world_overview, tracker_world_detailed
 from .constants import ItemNames, ConnectionNames, game_name
@@ -71,10 +72,20 @@ class BattleForBikiniBottom(World):
     topology_present = False
 
     item_name_to_id = {name: data.id for name, data in item_table.items()}
+    item_name_groups = item_name_groups
     location_name_to_id = location_table
+    location_name_groups = location_name_groups
 
     web = BattleForBikiniBottomWeb()
     ut_can_gen_without_yaml = True
+
+    item_mapping = {
+        ItemNames.so_100: ItemNames.so,
+        ItemNames.so_250: ItemNames.so,
+        ItemNames.so_500: ItemNames.so,
+        ItemNames.so_750: ItemNames.so,
+        ItemNames.so_1000: ItemNames.so
+    }
 
     def __init__(self, multiworld: "MultiWorld", player: int):
         super().__init__(multiworld, player)
@@ -150,11 +161,12 @@ class BattleForBikiniBottom(World):
         elif self.options.randomize_gate_cost.value == 1:
             level_inc_max = round(level_inc_max * 0.75)
         for v in self.level_order:
+            level_inc_max_actual = level_inc_max
             # set max increment after boss to 1/2
             if last_level is not None and last_level in [ConnectionNames.hub1_b1, ConnectionNames.hub2_b2]:
-                level_inc_max = 2 if self.options.include_skills else 1
-            level_inc_min = min(level_inc_min, level_inc_max)
-            cost = min(self.random.randint(level_inc_min, level_inc_max) + last_cost, self.options.required_spatulas.value - 1)
+                level_inc_max_actual = 2 if self.options.include_skills else 1
+            level_inc_min = min(level_inc_min, level_inc_max_actual)
+            cost = min(self.random.randint(level_inc_min, level_inc_max_actual) + last_cost, self.options.required_spatulas.value - 1)
             assert cost > 0, f"{v} gate cost too low"
             self.gate_costs[v] = cost
             last_level = v
@@ -202,8 +214,55 @@ class BattleForBikiniBottom(World):
         self.multiworld.itempool += self.get_items()
 
     def set_rules(self):
-        create_events(self.multiworld, self.player)
-        set_rules(self.multiworld, self.options, self.player, self.gate_costs)
+        self.get_location("Credits").place_locked_item(self.create_item("Victory"))
+
+        allowed_loc_types = [ItemNames.spat]
+        if self.options.include_socks.value:
+            allowed_loc_types += [ItemNames.sock]
+        # if world.include_skills[player].value:
+        #     allowed_loc_types += [ItemNames.skills]
+        if self.options.include_golden_underwear.value:
+            allowed_loc_types += [ItemNames.golden_underwear]
+        if self.options.include_level_items.value:
+            allowed_loc_types += [ItemNames.lvl_itm]
+        if self.options.include_purple_so.value:
+            allowed_loc_types += [ItemNames.so_purple]
+
+        entrance_logic = logic[0]
+        location_logic = logic[1]
+
+        for name, rule_obj in entrance_logic.items():
+            entrance = self.get_entrance(name)
+            self.set_rule(entrance, rule_obj)
+
+        for loc_type, rules in location_logic.items():
+            if loc_type not in allowed_loc_types:
+                continue
+            for name, rule_obj in rules.items():
+                entrance = self.get_location(name)
+                self.set_rule(entrance, rule_obj)
+
+        self.set_completion_rule(Has("Victory"))
+
+    def dump_logic(self, output_directory: str):
+        import json
+        result = {
+            "locations": {},
+            "entrances": {}
+        }
+
+        # Add location rules.
+        for name, rule in logic[0].items():
+                result["entrances"][name] = rule.to_dict()
+
+        # Add entrance rules.
+        # TODO: this needs to export all entrances using exit_table
+        for loc_type, rules in logic[1].items():
+            for name, rule in rules.items():
+                result["locations"][name] = rule.to_dict()
+
+        with open(f'{output_directory}/bfbb_logic_dump.json', 'w') as f:
+            json.dump(result, f, indent=2)
 
     def create_regions(self):
         create_regions(self.multiworld, self.options, self.player)
@@ -236,7 +295,7 @@ class BattleForBikiniBottom(World):
                 if option.value != v:
                     option.value = v
 
-    def create_item(self, name: str, ) -> Item:
+    def create_item(self, name: str) -> Item:
         item_data = item_table[name]
         classification = item_data.classification
         if name == ItemNames.spat:
@@ -278,3 +337,4 @@ class BattleForBikiniBottom(World):
             }
         )
         apbfbb.write()
+        # self.dump_logic(output_directory)
