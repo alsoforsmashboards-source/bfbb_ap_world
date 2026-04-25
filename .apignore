@@ -1,0 +1,23 @@
+# remove general unneeded files
+/README.md
+/TODO.md
+*.ps1
+.git*
+/release/
+
+# remove IP source
+/inc/IP_src
+/inc/IP/Resources/IndustrialPark-EditorFiles
+
+# remove unneeded files from wwrando dependency
+/wwrando/.github/
+/wwrando/.gitignore
+
+# only included needed files from tracker
+/tracker/
+!/tracker/LICENSE
+!/tracker/maps/
+!/tracker/images/maps/
+!/tracker/locations
+!/tracker/var_detailed/locations
+!/tracker/var_detailed/maps

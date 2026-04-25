@@ -4,21 +4,21 @@ import typing
 from typing import TextIO
 
 import settings
-from BaseClasses import Item, Tutorial, ItemClassification
+from BaseClasses import Item, Tutorial, ItemClassification, Region, Entrance
 from Options import Accessibility
 from rule_builder.rules import Has
 from worlds.AutoWorld import World, WebWorld
 from worlds.LauncherComponents import Component, components, Type, SuffixIdentifier, icon_paths
 from .Items import item_table, BfBBItem, item_name_groups
 from .LocationGroups import location_name_groups
-from .Locations import location_table, BfBBLocation, patrick_location_table
+from .Locations import location_table, BfBBLocation, patrick_location_table, sock_location_table
 from .Options import BfBBOptions, RandomizeGateCost
-from .Regions import create_regions
+from .Regions import _get_locations_for_region, exit_table
 from .Rom import BfBBContainer
 from .Rules import logic
 from .Settings import BattleForBikiniBottomSettings
 from .Tracker import tracker_world_overview, tracker_world_detailed
-from .constants import ItemNames, ConnectionNames, game_name
+from .constants import ItemNames, ConnectionNames, game_name, RegionNames
 
 
 def run_client(*args):
@@ -180,7 +180,7 @@ class BattleForBikiniBottom(World):
         filler_weights = [1, 2]
         if self.options.include_purple_so.value == 0:
             filler_items += [ItemNames.so_500, ItemNames.so_750, ItemNames.so_1000]
-            filler_weights += [5, 3, 2]
+            filler_weights += [7, 8, 5]
         # Generate item pool
         itempool = [ItemNames.spat] * self.options.available_spatulas.value
         if 100 - self.options.available_spatulas.value > 0:
@@ -202,8 +202,8 @@ class BattleForBikiniBottom(World):
             itempool += [ItemNames.lvl_itm_kf2] * 6
             itempool += [ItemNames.lvl_itm_gy] * 4
         if self.options.include_purple_so.value:
-            so_items = [ItemNames.so_100, ItemNames.so_250, ItemNames.so_500, ItemNames.so_750, ItemNames.so_1000]
-            so_weights = [1, 2, 5, 3, 2]
+            so_items = [ItemNames.so_500, ItemNames.so_750, ItemNames.so_1000]
+            so_weights = [7, 8, 5]
             itempool += self.random.choices(so_items, weights=so_weights, k=38)
 
         # Convert itempool into real items
@@ -265,7 +265,41 @@ class BattleForBikiniBottom(World):
             json.dump(result, f, indent=2)
 
     def create_regions(self):
-        create_regions(self.multiworld, self.options, self.player)
+        # create regions
+        self.multiworld.regions += [
+            self.create_region(k, _get_locations_for_region(self.options, k), v) for k, v in exit_table.items()
+        ]
+
+        # connect regions
+        self.get_entrance(ConnectionNames.start_game).connect(self.get_region(RegionNames.pineapple))
+        for k, v in exit_table.items():
+            if k == RegionNames.menu:
+                continue
+            for _exit in v:
+                exit_regions = _exit.split('->')
+                assert len(exit_regions) == 2
+                # ToDo: warp rando
+                target = self.get_region(exit_regions[1])
+                self.get_entrance(_exit).connect(target)
+
+        # place locked items
+        if not self.options.include_socks.value:
+            for k, _ in sock_location_table.items():
+                self.get_location(k).place_locked_item(self.create_item(ItemNames.sock))
+
+    def create_region(self, name: str, locations=None, exits=None) -> Region:
+        ret = Region(name, self.player, self.multiworld)
+        if locations:
+            for location in locations:
+                loc_id = location_table[location]
+                if not self.options.include_socks and location in sock_location_table.keys():
+                    loc_id = None
+                location = BfBBLocation(self.player, location, loc_id, ret)
+                ret.locations.append(location)
+        if exits:
+            for _exit in exits:
+                ret.exits.append(Entrance(self.player, _exit, ret))
+        return ret
 
     def fill_slot_data(self):
         return {
@@ -326,6 +360,7 @@ class BattleForBikiniBottom(World):
             player=self.player,
             player_name=self.multiworld.get_player_name(self.player),
             data={
+                "world_version": self.world_version.as_simple_string(),
                 "include_socks": bool(self.options.include_socks.value),
                 "include_skills": bool(self.options.include_skills.value),
                 "include_golden_underwear": bool(self.options.include_golden_underwear.value),

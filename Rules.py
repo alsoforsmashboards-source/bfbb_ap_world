@@ -134,15 +134,15 @@ def skills_only_rule(rule: Rule) -> Rule:
 
 
 def skills_excluded_rule(rule: Rule) -> Rule:
-    return Filtered(rule, **only_when_level_items_included)
+    return Filtered(rule, **only_when_skills_excluded)
 
 
 def level_item_only_rule(rule: Rule) -> Rule:
-    return Filtered(rule, **only_when_level_items_excluded)
+    return Filtered(rule, **only_when_level_items_included)
 
 
 def level_item_excluded_rule(rule: Rule) -> Rule:
-    return Filtered(rule, **only_when_skills_excluded)
+    return Filtered(rule, **only_when_level_items_excluded)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -177,7 +177,7 @@ logic = [
         ConnectionNames.kf04_kf02: skills_only_rule(Has(ItemNames.cruise_bubble)),
         ConnectionNames.kf01_kf05: skills_only_rule(Has(ItemNames.cruise_bubble)),
 
-        ConnectionNames.gy03_gy04: Has(ItemNames.lvl_itm_gy, count=4),
+        ConnectionNames.gy03_gy04: level_item_only_rule(Has(ItemNames.lvl_itm_gy, count=4)),
     },
     # locations
     {
@@ -214,14 +214,14 @@ logic = [
                     Has(ItemNames.spat, count=RequiredSpatLimitedResolver(40), **only_when_purple_so_excluded) &
                     Filtered(can_farm_so | HasSOAmount(amount=39500 / 2), **only_when_purple_so_included)
             ),
-            LocationNames.spat_ps_01: sock_only_rule(Has(ItemNames.sock, count=10)),
-            LocationNames.spat_ps_02: sock_only_rule(Has(ItemNames.sock, count=20)),
-            LocationNames.spat_ps_03: sock_only_rule(Has(ItemNames.sock, count=30)),
-            LocationNames.spat_ps_04: sock_only_rule(Has(ItemNames.sock, count=40)),
-            LocationNames.spat_ps_05: sock_only_rule(Has(ItemNames.sock, count=50)),
-            LocationNames.spat_ps_06: sock_only_rule(Has(ItemNames.sock, count=60)),
-            LocationNames.spat_ps_07: sock_only_rule(Has(ItemNames.sock, count=70)),
-            LocationNames.spat_ps_08: sock_only_rule(Has(ItemNames.sock, count=80)),
+            LocationNames.spat_ps_01: Has(ItemNames.sock, count=10),
+            LocationNames.spat_ps_02: Has(ItemNames.sock, count=20),
+            LocationNames.spat_ps_03: Has(ItemNames.sock, count=30),
+            LocationNames.spat_ps_04: Has(ItemNames.sock, count=40),
+            LocationNames.spat_ps_05: Has(ItemNames.sock, count=50),
+            LocationNames.spat_ps_06: Has(ItemNames.sock, count=60),
+            LocationNames.spat_ps_07: Has(ItemNames.sock, count=70),
+            LocationNames.spat_ps_08: Has(ItemNames.sock, count=80),
 
             LocationNames.spat_hb_02: skills_only_rule(Has(ItemNames.bubble_bowl) | Has(ItemNames.cruise_bubble)),
             LocationNames.spat_hb_03: skills_only_rule(Has(ItemNames.cruise_bubble)),

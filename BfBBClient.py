@@ -662,6 +662,7 @@ class BfBBContext(SuperContext):
         self.disable_ring_link = False
         self.previous_shiny_objects = None
         self.instance_id = time.time()
+        self.world_version = "unknown"
         self.so_to_ring_ratio = 10
 
     async def disconnect(self, allow_autoreconnect: bool = False):
@@ -681,6 +682,8 @@ class BfBBContext(SuperContext):
             self.included_check_types = CheckTypes.SPAT
             self.death_link = bool(args['slot_data'].get('death_link', 0))
             self.ring_link = bool(args['slot_data'].get('ring_link', 0))
+            self.world_version = args['slot_data'].get('version', "unknown")
+            logger.info(f"Server world version: {self.world_version}")
             self.so_to_ring_ratio = args['slot_data'].get('shiny_object_to_ring_ratio', 10)
             if self.death_link or self.ring_link:
                 Utils.async_start(self.update_tags())
@@ -760,7 +763,9 @@ class BfBBContext(SuperContext):
         else:
             self.awaiting_rom = False
         if password_requested and not self.password:
-            await super(BfBBContext, self).server_auth(password_requested)
+            logger.info('Enter the password required to join this game:')
+            self.password = await self.console_input()
+        print(self.game)
         await self.send_connect()
 
     def make_gui(self) -> type["kvui.GameManager"]:
@@ -1460,6 +1465,11 @@ async def patch_and_run_game(ctx: BfBBContext, patch_file):
                 if not BfBBContainer.check_version(patch_archive):
                     raise Exception("apbfbb version doesn't match this client. "
                                     "Make sure your generator and client are the same.")
+
+                world_version = BfBBContainer.get_json_obj(patch_archive, "world_version.json")
+                logger.info(f"Patch file version: {world_version}")
+                from . import BattleForBikiniBottom
+                logger.info(f"Installed world version: {BattleForBikiniBottom.world_version.as_simple_string()}")
 
             # BfBBContainer.check_hash()
             shutil.copy(rom_path, result_path)

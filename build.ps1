@@ -42,32 +42,32 @@ foreach ($py_version in $py_versions)
 }
 
 
-
-# build apworld
-# copy base files needed
-robocopy $basePath $apworldBuildPath /MIR /XD IP_src IndustrialPark-EditorFiles __pycache__ release .git tracker /XF .gitignore .gitmodules *.ps1 TODO.md
-robocopy $basePath/tracker $apworldBuildPath/tracker /MIR /XD .github gen images items layouts scripts var_itemsonly /XF .git .gitignore .gitmodules .luarc.json manifest.json versions.json README.md
-robocopy $basePath/tracker/images $apworldBuildPath/tracker/images /MIR /XD items
-# remove old apworld
-if (Test-Path $apworldOutZip)
-{
-    Remove-Item $apworldOutZip -Force
-}
-# zip it
-#Compress-Archive -Path $apworldBuildPath -DestinationPath $apworldOutZip -Force
-Set-Location -Path $tmpPath
-$SevenZip = Join-Path $PSScriptRoot "release\7zip\7z.exe"
-& $SevenZip a -tzip -y "bfbb.zip" "bfbb"
-Set-Location -Path "..\..\"
-# Check if the target file exists and remove it
-if (Test-Path $apworldOutPath)
-{
-    Remove-Item $apworldOutPath -Force
-}
-# rename to apworld
-Move-Item -Path $apworldOutZip -Destination $apworldOutPath
-# clean up
-Remove-Item -Recurse -Force -Path $apworldBuildPath
+# TODO: either remove completely or replace by running 'Launcher.py "Build APWorlds"'
+## build apworld
+## copy base files needed
+#robocopy $basePath $apworldBuildPath /MIR /XD IP_src IndustrialPark-EditorFiles __pycache__ release .git tracker /XF .gitignore .gitmodules *.ps1 TODO.md
+#robocopy $basePath/tracker $apworldBuildPath/tracker /MIR /XD .github gen images items layouts scripts var_itemsonly /XF .git .gitignore .gitmodules .luarc.json manifest.json versions.json README.md
+#robocopy $basePath/tracker/images $apworldBuildPath/tracker/images /MIR /XD items
+## remove old apworld
+#if (Test-Path $apworldOutZip)
+#{
+#    Remove-Item $apworldOutZip -Force
+#}
+## zip it
+##Compress-Archive -Path $apworldBuildPath -DestinationPath $apworldOutZip -Force
+#Set-Location -Path $tmpPath
+#$SevenZip = Join-Path $PSScriptRoot "release\7zip\7z.exe"
+#& $SevenZip a -tzip -y "bfbb.zip" "bfbb"
+#Set-Location -Path "..\..\"
+## Check if the target file exists and remove it
+#if (Test-Path $apworldOutPath)
+#{
+#    Remove-Item $apworldOutPath -Force
+#}
+## rename to apworld
+#Move-Item -Path $apworldOutZip -Destination $apworldOutPath
+## clean up
+#Remove-Item -Recurse -Force -Path $apworldBuildPath
 
 Write-Host "Build script completed!"
 
