@@ -3,8 +3,18 @@ spat = "Golden Spatula"
 # socks
 sock = "Lost Sock"
 # skills
+bubble_bash = "Bubble Bash"
+bubbe_bounce = "Bubble Bounce"
+spongeball = "Spongeball"
 bubble_bowl = "Bubble Bowl"
 cruise_bubble = "Cruise Bubble"
+lasso = "Lasso"
+glide = "Glide"
+swing_hook = "Swing-Hook"
+body_slam = "Body Slam"
+throw = "Throw"
+throw_fruit = "Throw Fruit"
+freezy_fruit = "Freezy Fruit"
 # golden underwear
 golden_underwear = "Golden Underwear"
 # level pickups
