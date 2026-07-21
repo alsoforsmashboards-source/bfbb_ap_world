@@ -35,20 +35,23 @@ item_table = {
     ItemNames.so_750: ItemData(base_id + 5, ItemClassification.progression_deprioritized_skip_balancing),
     ItemNames.so_1000: ItemData(base_id + 6, ItemClassification.progression_deprioritized_skip_balancing),
     # skills
-    ItemNames.bubble_bowl: ItemData(base_id + 7, ItemClassification.progression),
-    ItemNames.cruise_bubble: ItemData(base_id + 8, ItemClassification.progression),
+    ItemNames.bubble_bash: ItemData(base_id + 7, ItemClassification.progression),
+    ItemNames.bubble_bounce: ItemData(base_id + 8, ItemClassification.progression),
+    ItemNames.spongeball: ItemData(base_id + 9, ItemClassification.progression),
+    ItemNames.bubble_bowl: ItemData(base_id + 10, ItemClassification.progression),
+    ItemNames.cruise_bubble: ItemData(base_id + 11, ItemClassification.progression),
     # golden underwear
-    ItemNames.golden_underwear: ItemData(base_id + 9, ItemClassification.useful),
+    ItemNames.golden_underwear: ItemData(base_id + 12, ItemClassification.useful),
     # level pickups
-    ItemNames.lvl_itm_jf: ItemData(base_id + 10, ItemClassification.progression_deprioritized),
-    ItemNames.lvl_itm_bb: ItemData(base_id + 11, ItemClassification.progression_deprioritized),
-    ItemNames.lvl_itm_gl: ItemData(base_id + 12, ItemClassification.progression_deprioritized),
-    ItemNames.lvl_itm_rb: ItemData(base_id + 13, ItemClassification.progression_deprioritized),
-    ItemNames.lvl_itm_bc: ItemData(base_id + 14, ItemClassification.progression_deprioritized),
-    ItemNames.lvl_itm_sm: ItemData(base_id + 15, ItemClassification.progression_deprioritized),
-    ItemNames.lvl_itm_kf1: ItemData(base_id + 16, ItemClassification.progression_deprioritized),
-    ItemNames.lvl_itm_kf2: ItemData(base_id + 17, ItemClassification.progression_deprioritized),
-    ItemNames.lvl_itm_gy: ItemData(base_id + 18, ItemClassification.progression_deprioritized),
+    ItemNames.lvl_itm_jf: ItemData(base_id + 13, ItemClassification.progression_deprioritized),
+    ItemNames.lvl_itm_bb: ItemData(base_id + 14, ItemClassification.progression_deprioritized),
+    ItemNames.lvl_itm_gl: ItemData(base_id + 15, ItemClassification.progression_deprioritized),
+    ItemNames.lvl_itm_rb: ItemData(base_id + 16, ItemClassification.progression_deprioritized),
+    ItemNames.lvl_itm_bc: ItemData(base_id + 17, ItemClassification.progression_deprioritized),
+    ItemNames.lvl_itm_sm: ItemData(base_id + 18, ItemClassification.progression_deprioritized),
+    ItemNames.lvl_itm_kf1: ItemData(base_id + 19, ItemClassification.progression_deprioritized),
+    ItemNames.lvl_itm_kf2: ItemData(base_id + 20, ItemClassification.progression_deprioritized),
+    ItemNames.lvl_itm_gy: ItemData(base_id + 21, ItemClassification.progression_deprioritized),
     # events
     ItemNames.victory: ItemData(None, ItemClassification.progression)
 }
@@ -63,8 +66,16 @@ item_name_groups = {
         ItemNames.so_1000
     },
     "Skills": {
+        ItemNames.bubble_bash,
+        ItemNames.bubble_bounce,
+        ItemNames.spongeball
         ItemNames.bubble_bowl,
         ItemNames.cruise_bubble,
+        ItemNames.lasso,
+        ItemNames.glide,
+        ItemNames.swing_hook,
+        ItemNames.body_slam,
+        ItemNames.throw,
     },
     "Level Items": {
         ItemNames.lvl_itm_jf,
