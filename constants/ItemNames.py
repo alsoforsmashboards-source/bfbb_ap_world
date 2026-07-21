@@ -13,8 +13,6 @@ glide = "Glide"
 swing_hook = "Swing-Hook"
 body_slam = "Body Slam"
 throw = "Throw"
-throw_fruit = "Throw Fruit"
-freezy_fruit = "Freezy Fruit"
 # golden underwear
 golden_underwear = "Golden Underwear"
 # level pickups
